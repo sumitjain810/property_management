@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { ApiServiceService } from './services/api-service.service';
+
 import { DialogContentExampleDialogComponent } from './dialog-content-example-dialog/dialog-content-example-dialog.component';
 @Component({
   selector: 'app-root',
@@ -8,34 +10,19 @@ import { DialogContentExampleDialogComponent } from './dialog-content-example-di
 })
 export class AppComponent {
   displayedColumns: string[] = ['name', 'description', 'size', 'action'];
+  propertiesList: any[] = [];
 
-  title = 'frontend';
-  propertiesList: Array<any> = [];
-
-  constructor(public dialog: MatDialog) {}
+  constructor(public dialog: MatDialog, private api: ApiServiceService) {}
 
   ngOnInit() {
     this.initialization();
   }
 
-  initialization = () => {
-    this.propertiesList = [
-      {
-        name: 'VTP',
-        description: 'Located in Baner',
-        size: '900 sqft',
-      },
-      {
-        name: 'panchsheel',
-        description: 'Located in Kharadi',
-        size: '1200 sqft',
-      },
-      {
-        name: 'Godrej',
-        description: 'Located in Kothrud',
-        size: '750 sqft',
-      },
-    ];
+  initialization = async () => {
+    this.api.getProperties().subscribe((response: any) => {
+      console.log('Response: ', response);
+      this.propertiesList = response['message']['records'];
+    });
   };
 
   delete = (element: any) => {
@@ -45,22 +32,30 @@ export class AppComponent {
     console.log('Index: ', index);
 
     if (index !== -1) {
-      this.propertiesList.splice(index, 1);
-      this.propertiesList = [...this.propertiesList];
-      console.log('updated propertiesList: ', this.propertiesList);
+      this.api.deleteProperty({id: element.id}).subscribe((response: any) => {
+        console.log('Response: ', response);
+        this.propertiesList.splice(index, 1);
+        this.propertiesList = [...this.propertiesList];
+        console.log('updated propertiesList: ', this.propertiesList);
+      });
     }
   };
 
   add = () => {
-    // show modal
     const dialogRef = this.dialog.open(DialogContentExampleDialogComponent);
 
     dialogRef.afterClosed().subscribe((result) => {
       console.log('Dialog result:', result);
-
-      this.propertiesList.push(result)
-      this.propertiesList = [...this.propertiesList];
-
+      if(result.name && result.description && result.size){
+        this.api.saveProperty({ fields: result }).subscribe((response: any) => {
+          console.log('Response: ', response);
+          this.propertiesList.push(response.message.fields);
+          this.propertiesList = [...this.propertiesList];
+        });  
+      }
+      else{
+        alert("Please fillup all the details...")
+      }
     });
   };
 }

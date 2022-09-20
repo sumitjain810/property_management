@@ -6,6 +6,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
+import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -16,6 +17,7 @@ import { DialogContentExampleDialogComponent } from './dialog-content-example-di
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    HttpClientModule,
     MatTableModule,
     MatButtonModule,
     MatDialogModule,
